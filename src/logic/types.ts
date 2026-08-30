@@ -16,3 +16,29 @@ export interface StationOfLine {
   LineID: string
   Stations: Station[]
 }
+
+// Verified against TDX's OpenAPI V3 spec for GET /v2/Rail/Metro/FirstLastTimetable/{RailSystem}.
+export interface ServiceDay {
+  Monday: boolean
+  Tuesday: boolean
+  Wednesday: boolean
+  Thursday: boolean
+  Friday: boolean
+  Saturday: boolean
+  Sunday: boolean
+  NationalHolidays: boolean
+  ServiceTag?: string
+}
+
+export interface FirstLastTimetable {
+  LineID: string
+  StationID: string
+  StationName: NameType
+  TripHeadSign?: string
+  DestinationStaionID: string
+  DestinationStationName: NameType
+  TrainType?: number
+  FirstTrainTime: string
+  LastTrainTime: string
+  ServiceDay: ServiceDay
+}
