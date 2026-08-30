@@ -27,8 +27,23 @@
 | `/StationOfLine/TRTC` | 依路線取得該線所有站點（含站序） |
 | `/FirstLastTimetable/TRTC` | 依站點取得首末班車時刻表 |
 
-實際欄位結構請以 TDX Swagger 文件實測結果為準：
-https://tdx.transportdata.tw/api-service/swagger/basic/2998e851-81d0-40f5-b26d-77e2f5ac4118
+Swagger UI 是前端渲染的 SPA，無法直接爬取；OpenAPI JSON 原始文件可直接下載：
+https://tdx.transportdata.tw/webapi/File/Swagger/V3/268fc230-2e04-471b-a728-a726167c1cfc
+
+已對照上述文件確認的欄位結構（`components.schemas`）：
+
+- **`NameType`**（各種名稱共用型別）：`Zh_tw`（必填）、`En` / `Ja` / `Ko`（皆可為 null）
+- **`Line`**：`LineID`、`LineName: NameType`、`LineSectionName: NameType`、`LineColor`、
+  `LineNo`（可為 null）、`IsBranch`、`VersionID`、`SrcUpdateTime`、`UpdateTime`
+- **`StationOfLine`**：`LineID`、`Stations: Station[]`
+  - `Station`：`StationID`、`StationName: NameType`、`Sequence`、`CumulativeDistance`（可為 null）
+- **`FirstLastTimetable`**：`LineID`、`StationID`、`StationName: NameType`、
+  `DestinationStaionID`（注意官方拼字少一個 t）、`DestinationStationName: NameType`、
+  `TripHeadSign`（可為 null，去程/返程描述）、`TrainType`（0:不分車種,1:普通車,2:直達車，可為 null）、
+  `FirstTrainTime`、`LastTrainTime`（字串格式，非 ISO datetime）、`ServiceDay`
+  - `ServiceDay`：`Monday`~`Sunday`、`NationalHolidays`（皆為 boolean）、`ServiceTag`（可為 null）
+
+這些欄位是官方 API 規格，尚未實測過真實回傳資料（值的實際內容、邊界案例）。
 
 ## 資料策略：靜態 JSON + CI 定期更新
 
@@ -66,6 +81,6 @@ https://tdx.transportdata.tw/api-service/swagger/basic/2998e851-81d0-40f5-b26d-7
 
 ## 尚待確定事項
 
-- TDX `FirstLastTimetable` 實際回傳欄位細節（尚未實測）
+- 欄位結構已對照官方 Swagger 確認（見上），但尚未用真實憑證實測過實際回傳資料
 - CI 排程的實際頻率與 workflow 設計細節
 - 具體動效設計（路網視覺化、搜尋篩選、倒數提示等）尚在構思階段
