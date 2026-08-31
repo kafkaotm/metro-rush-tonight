@@ -24,10 +24,26 @@ describe('getTier', () => {
 })
 
 describe('TIER_STYLES', () => {
-  it('defines color, bg, and copy for every tier', () => {
-    expect(TIER_STYLES.calm).toEqual({ color: '#0f89c9', bg: '#dff0fb', copy: '慢慢走就好，別跑。' })
-    expect(TIER_STYLES.run).toEqual({ color: '#c98209', bg: '#fdf0d8', copy: '跑得動！現在出發還來得及。' })
-    expect(TIER_STYLES.panic).toEqual({ color: '#d94436', bg: '#fde3df', copy: '快跑！別再滑手機了。' })
-    expect(TIER_STYLES.gone).toEqual({ color: '#6b8998', bg: '#e6ecef', copy: '今晚的捷運先睡了。' })
+  it('defines color, bg, and zh/en copy for every tier', () => {
+    expect(TIER_STYLES.calm).toEqual({
+      color: '#0f89c9',
+      bg: '#dff0fb',
+      copy: { zh: '慢慢走就好，別跑。', en: 'Plenty of time. Enjoy the night air.' },
+    })
+    expect(TIER_STYLES.run).toEqual({
+      color: '#c98209',
+      bg: '#fdf0d8',
+      copy: { zh: '跑得動！現在出發還來得及。', en: "Move now and you'll make it." },
+    })
+    expect(TIER_STYLES.panic).toEqual({
+      color: '#d94436',
+      bg: '#fde3df',
+      copy: { zh: '快跑！別再滑手機了。', en: 'Run. Stop reading this.' },
+    })
+    expect(TIER_STYLES.gone).toEqual({
+      color: '#6b8998',
+      bg: '#e6ecef',
+      copy: { zh: '今晚的捷運先睡了。', en: 'The metro has gone to bed.' },
+    })
   })
 })
