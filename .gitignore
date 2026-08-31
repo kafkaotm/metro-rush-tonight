@@ -17,6 +17,9 @@ dist-ssr
 .env.*
 !.env.example
 
+# Local design reference (not part of the codebase)
+design_handoff_metro_rush_tonight/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
