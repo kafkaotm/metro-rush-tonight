@@ -33,10 +33,20 @@ async function getToken(): Promise<string> {
   return data.access_token
 }
 
-async function getJson<T>(token: string, path: string): Promise<T> {
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+async function getJson<T>(token: string, path: string, retriesLeft = 3): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     headers: { Authorization: `Bearer ${token}` },
   })
+  if (res.status === 429 && retriesLeft > 0) {
+    const retryAfterSeconds = Number(res.headers.get('Retry-After')) || 30
+    console.log(`Rate limited on ${path}, retrying in ${retryAfterSeconds}s...`)
+    await sleep(retryAfterSeconds * 1000)
+    return getJson<T>(token, path, retriesLeft - 1)
+  }
   if (!res.ok) {
     throw new Error(`TDX fetch ${path} failed: ${res.status} ${await res.text()}`)
   }
@@ -48,16 +58,31 @@ async function writeData(filename: string, data: unknown): Promise<void> {
   await writeFile(new URL(filename, DATA_DIR), `${JSON.stringify(data, null, 2)}\n`)
 }
 
+// TRTC (臺北捷運本體) + NTMC (環狀線，新北捷運營運). Their LineID/StationID
+// namespaces don't overlap (Y / Y01-Y21 vs BL/BR/G/O/R), so results merge
+// directly with no conflict handling needed.
+const RAIL_SYSTEMS = ['TRTC', 'NTMC']
+
 const token = await getToken()
 
-const lines = await getJson<Line[]>(token, '/Line/TRTC?%24format=JSON')
+const lines: Line[] = []
+const stationsOfLine: StationOfLine[] = []
+const timetable: FirstLastTimetable[] = []
+
+for (const railSystem of RAIL_SYSTEMS) {
+  const systemLines = await getJson<Line[]>(token, `/Line/${railSystem}?%24format=JSON`)
+  lines.push(...systemLines)
+  console.log(`Line/${railSystem}: ${systemLines.length} entries`)
+
+  const systemStationsOfLine = await getJson<StationOfLine[]>(token, `/StationOfLine/${railSystem}?%24format=JSON`)
+  stationsOfLine.push(...systemStationsOfLine)
+  console.log(`StationOfLine/${railSystem}: ${systemStationsOfLine.length} entries`)
+
+  const systemTimetable = await getJson<FirstLastTimetable[]>(token, `/FirstLastTimetable/${railSystem}?%24format=JSON`)
+  timetable.push(...systemTimetable)
+  console.log(`FirstLastTimetable/${railSystem}: ${systemTimetable.length} entries`)
+}
+
 await writeData('lines.json', lines)
-console.log(`Line/TRTC: ${lines.length} entries`)
-
-const stationsOfLine = await getJson<StationOfLine[]>(token, '/StationOfLine/TRTC?%24format=JSON')
 await writeData('stationsOfLine.json', stationsOfLine)
-console.log(`StationOfLine/TRTC: ${stationsOfLine.length} entries`)
-
-const timetable = await getJson<FirstLastTimetable[]>(token, '/FirstLastTimetable/TRTC?%24format=JSON')
 await writeData('timetable.json', timetable)
-console.log(`FirstLastTimetable/TRTC: ${timetable.length} entries`)
