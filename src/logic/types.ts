@@ -5,6 +5,19 @@ export interface NameType {
   En?: string
 }
 
+// Verified against TDX's OpenAPI V3 spec for GET /v2/Rail/Metro/Line/{RailSystem}.
+export interface Line {
+  LineID: string
+  LineName: NameType
+  LineSectionName: NameType
+  LineColor: string
+  LineNo?: string
+  IsBranch: boolean
+  VersionID: number
+  SrcUpdateTime: string
+  UpdateTime: string
+}
+
 export interface Station {
   StationID: string
   StationName: NameType
