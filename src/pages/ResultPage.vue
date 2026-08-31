@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import BackButton from '../components/BackButton.vue'
 import DirectionList from '../components/DirectionList.vue'
 import HeroCard from '../components/HeroCard.vue'
+import { useNow } from '../composables/useNow'
 import linesData from '../data/lines.json'
 import stationsOfLineData from '../data/stationsOfLine.json'
 import timetableData from '../data/timetable.json'
@@ -19,7 +20,7 @@ const props = defineProps<{
 const lines = linesData as Line[]
 const stationsOfLine = stationsOfLineData as StationOfLine[]
 const timetable = timetableData as FirstLastTimetable[]
-const now = ref(new Date())
+const now = useNow()
 const router = useRouter()
 
 const line = computed(() => lines.find((candidate) => candidate.LineID === props.lineId))
