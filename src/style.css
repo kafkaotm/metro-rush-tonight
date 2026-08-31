@@ -3,4 +3,8 @@
 body {
   margin: 0;
   font-family: 'Nunito', 'Noto Sans TC', sans-serif;
+  /* This is a mobile-only design (402px basis, no desktop layout).
+     On wider viewports the app renders as a fixed-width column so it
+     doesn't stretch into an unintended desktop layout. */
+  background: #dfe3e6;
 }
