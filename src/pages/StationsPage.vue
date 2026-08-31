@@ -25,17 +25,28 @@ function handleSelectStation(stationId: string) {
 </script>
 
 <template>
-  <template v-if="line">
+  <div
+    v-if="line"
+    class="animate-[mrt-slide_0.3s_ease_both]"
+  >
     <BackButton
       label="換一條線"
       @click="router.push('/')"
     />
-    <div class="mt-[16px]">
-      <StationSelector
-        :stations="stations"
-        :line-color="line.LineColor"
-        @select="handleSelectStation"
+    <div class="mt-[16px] mb-[6px] flex items-center gap-[9px]">
+      <span
+        class="h-[12px] w-[12px] flex-none rounded-[9px]"
+        :style="{ backgroundColor: line.LineColor }"
       />
+      <span class="text-[21px] font-black text-[#16222b]">{{ line.LineName.Zh_tw }}</span>
     </div>
-  </template>
+    <div class="mb-[14px] text-[12.5px] font-semibold text-[#6b8998]">
+      你在哪一站？
+    </div>
+    <StationSelector
+      :stations="stations"
+      :line-color="line.LineColor"
+      @select="handleSelectStation"
+    />
+  </div>
 </template>

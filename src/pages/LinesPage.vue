@@ -13,8 +13,13 @@ function handleSelectLine(lineId: string) {
 </script>
 
 <template>
-  <LineSelector
-    :lines="lines"
-    @select="handleSelectLine"
-  />
+  <h1 class="text-[23px] leading-[1.35] font-black text-[#16222b]">
+    今晚搭哪條線？
+  </h1>
+  <div class="mt-[16px]">
+    <LineSelector
+      :lines="lines"
+      @select="handleSelectLine"
+    />
+  </div>
 </template>
