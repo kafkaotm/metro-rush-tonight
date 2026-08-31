@@ -1,10 +1,15 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import PressableButton from './PressableButton.vue'
+import type { Lang } from '../composables/useLanguage'
 import type { Line } from '../logic/types'
 
-defineProps<{
+const props = defineProps<{
   line: Line
+  lang: Lang
 }>()
+
+const name = computed(() => (props.lang === 'en' ? props.line.LineName.En : undefined) ?? props.line.LineName.Zh_tw)
 </script>
 
 <template>
@@ -17,7 +22,7 @@ defineProps<{
       {{ line.LineNo ?? line.LineID }}
     </span>
     <span class="block text-[15.5px] font-black text-[#16222b]">
-      {{ line.LineName.Zh_tw }}
+      {{ name }}
     </span>
   </PressableButton>
 </template>
