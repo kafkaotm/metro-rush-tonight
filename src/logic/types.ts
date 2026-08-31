@@ -9,7 +9,9 @@ export interface NameType {
 export interface Line {
   LineID: string
   LineName: NameType
-  LineSectionName: NameType
+  // Real API responses return `{}` for non-branch lines (Zh_tw absent), unlike every
+  // other NameType field — confirmed against a live /Line/TRTC call.
+  LineSectionName: Partial<NameType>
   LineColor: string
   LineNo?: string
   IsBranch: boolean
