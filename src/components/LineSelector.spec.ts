@@ -19,8 +19,8 @@ function makeLine(overrides: Partial<Line> = {}): Line {
 }
 
 const lines: Line[] = [
-  makeLine({ LineID: 'R', LineName: { Zh_tw: '淡水信義線', En: 'Tamsui-Xinyi Line' }, LineColor: '#d90023' }),
-  makeLine({ LineID: 'BL', LineName: { Zh_tw: '板南線', En: 'Bannan Line' }, LineColor: '#0a59ae' }),
+  makeLine({ LineID: 'R', LineName: { Zh_tw: '淡水信義線', En: 'Tamsui-Xinyi Line' }, LineColor: '#d90023', LineNo: 'R' }),
+  makeLine({ LineID: 'BL', LineName: { Zh_tw: '板南線', En: 'Bannan Line' }, LineColor: '#0a59ae', LineNo: 'BL' }),
 ]
 
 describe('LineSelector', () => {
@@ -39,12 +39,14 @@ describe('LineSelector', () => {
     expect(wrapper.emitted('select')).toEqual([['BL']])
   })
 
-  it('renders each line option with its LineColor as a background color', () => {
+  it('renders each line option with a code badge in its LineColor', () => {
     const wrapper = mount(LineSelector, { props: { lines } })
 
-    const options = wrapper.findAll('[data-testid="line-option"]')
-    expect(options[0].attributes('style')).toContain('background-color: rgb(217, 0, 35)')
-    expect(options[1].attributes('style')).toContain('background-color: rgb(10, 89, 174)')
+    const badges = wrapper.findAll('[data-testid="line-badge"]')
+    expect(badges[0].attributes('style')).toContain('background-color: rgb(217, 0, 35)')
+    expect(badges[0].text()).toBe('R')
+    expect(badges[1].attributes('style')).toContain('background-color: rgb(10, 89, 174)')
+    expect(badges[1].text()).toBe('BL')
   })
 
   it('renders no line options when given an empty list', () => {

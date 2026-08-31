@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import LineButton from './LineButton.vue'
 import type { Line } from '../logic/types'
 
 defineProps<{
@@ -11,19 +12,16 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <ul class="line-selector">
+  <ul class="m-0 grid list-none grid-cols-2 gap-[12px] p-0">
     <li
       v-for="line in lines"
       :key="line.LineID"
     >
-      <button
-        type="button"
+      <LineButton
+        :line="line"
         data-testid="line-option"
-        :style="{ backgroundColor: line.LineColor }"
         @click="emit('select', line.LineID)"
-      >
-        {{ line.LineName.Zh_tw }}
-      </button>
+      />
     </li>
   </ul>
 </template>
