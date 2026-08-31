@@ -21,7 +21,7 @@ function makeEntry(overrides: Partial<FirstLastTimetable> = {}): FirstLastTimeta
     StationName: { Zh_tw: '大安' },
     TripHeadSign: '往象山',
     DestinationStaionID: 'R02',
-    DestinationStationName: { Zh_tw: '象山' },
+    DestinationStationName: { Zh_tw: '象山', En: 'Xiangshan' },
     FirstTrainTime: '06:00',
     LastTrainTime: '23:50',
     ServiceDay: everyDay,
@@ -37,7 +37,7 @@ describe('DirectionList', () => {
       makeEntry({ TripHeadSign: '往淡水', LastTrainTime: '23:45' }),
     ]
 
-    const wrapper = mount(DirectionList, { props: { directions, now } })
+    const wrapper = mount(DirectionList, { props: { directions, now, lang: 'zh' } })
 
     const rows = wrapper.findAll('[data-testid="direction-row"]')
     expect(rows.map((r) => r.text())).toEqual([
@@ -55,7 +55,7 @@ describe('DirectionList', () => {
       makeEntry({ TripHeadSign: '往淡水', LastTrainTime: '22:50' }), // departed
     ]
 
-    const wrapper = mount(DirectionList, { props: { directions, now } })
+    const wrapper = mount(DirectionList, { props: { directions, now, lang: 'zh' } })
 
     const rows = wrapper.findAll('[data-testid="direction-row"]')
     expect(rows[0].text()).toContain('+12 min')
@@ -69,15 +69,26 @@ describe('DirectionList', () => {
       makeEntry({ TripHeadSign: '往淡水', LastTrainTime: '23:45' }), // 45 min -> calm -> #0f89c9
     ]
 
-    const wrapper = mount(DirectionList, { props: { directions, now } })
+    const wrapper = mount(DirectionList, { props: { directions, now, lang: 'zh' } })
 
     const bars = wrapper.findAll('[data-testid="direction-bar"]')
     expect(bars[0].attributes('style')).toContain('background-color: rgb(217, 68, 54)')
     expect(bars[1].attributes('style')).toContain('background-color: rgb(15, 137, 201)')
   })
 
+  it('renders the "各方向末班車" / "All directions" label and English direction text when lang is "en"', () => {
+    const now = new Date(2026, 7, 31, 23, 0)
+    const directions = [makeEntry({ TripHeadSign: '往象山', LastTrainTime: '22:50' })] // departed
+
+    const wrapper = mount(DirectionList, { props: { directions, now, lang: 'en' } })
+
+    expect(wrapper.text()).toContain('All directions')
+    expect(wrapper.get('[data-testid="direction-row"]').text()).toContain('to Xiangshan')
+    expect(wrapper.get('[data-testid="direction-row"]').text()).toContain('departed')
+  })
+
   it('renders no rows when given an empty list', () => {
-    const wrapper = mount(DirectionList, { props: { directions: [], now: new Date(2026, 7, 31, 23, 0) } })
+    const wrapper = mount(DirectionList, { props: { directions: [], now: new Date(2026, 7, 31, 23, 0), lang: 'zh' } })
 
     expect(wrapper.findAll('[data-testid="direction-row"]')).toHaveLength(0)
   })

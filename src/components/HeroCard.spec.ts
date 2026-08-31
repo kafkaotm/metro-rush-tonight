@@ -16,7 +16,7 @@ const everyDay: ServiceDay = {
 
 const station: Station = {
   StationID: 'R05',
-  StationName: { Zh_tw: '大安' },
+  StationName: { Zh_tw: '大安', En: 'Daan' },
   Sequence: 5,
 }
 
@@ -27,7 +27,7 @@ function makeEntry(overrides: Partial<FirstLastTimetable> = {}): FirstLastTimeta
     StationName: { Zh_tw: '大安' },
     TripHeadSign: '往象山',
     DestinationStaionID: 'R02',
-    DestinationStationName: { Zh_tw: '象山' },
+    DestinationStationName: { Zh_tw: '象山', En: 'Xiangshan' },
     FirstTrainTime: '06:00',
     LastTrainTime: '23:50',
     ServiceDay: everyDay,
@@ -43,6 +43,7 @@ describe('HeroCard', () => {
         lineColor: '#d90023',
         timetable: [makeEntry()],
         now: new Date(2026, 7, 31, 23, 0),
+        lang: 'zh',
       },
     })
 
@@ -56,6 +57,7 @@ describe('HeroCard', () => {
         lineColor: '#d90023',
         timetable: [makeEntry({ TripHeadSign: '往象山', LastTrainTime: '23:20' })],
         now: new Date(2026, 7, 31, 23, 0), // 20 minutes before 23:20
+        lang: 'zh',
       },
     })
 
@@ -71,6 +73,7 @@ describe('HeroCard', () => {
         lineColor: '#d90023',
         timetable: [makeEntry({ TripHeadSign: '往象山', LastTrainTime: '00:50' })],
         now: new Date(2026, 8, 1, 1, 0), // 10 minutes after 00:50
+        lang: 'zh',
       },
     })
 
@@ -88,6 +91,7 @@ describe('HeroCard', () => {
         // 30 minutes away -> calm tier
         timetable: [makeEntry({ LastTrainTime: '23:30' })],
         now: new Date(2026, 7, 31, 23, 0),
+        lang: 'zh',
       },
     })
 
@@ -102,9 +106,42 @@ describe('HeroCard', () => {
         lineColor: '#d90023',
         timetable: [],
         now: new Date(2026, 7, 31, 23, 0),
+        lang: 'zh',
       },
     })
 
     expect(wrapper.find('[data-testid="hero-card"]').exists()).toBe(false)
+  })
+
+  it('renders English station name, departure info, tag, and tier copy when lang is "en"', () => {
+    const wrapper = mount(HeroCard, {
+      props: {
+        station,
+        lineColor: '#d90023',
+        timetable: [makeEntry({ TripHeadSign: '往象山', LastTrainTime: '23:20' })],
+        now: new Date(2026, 7, 31, 23, 0),
+        lang: 'en',
+      },
+    })
+
+    expect(wrapper.text()).toContain('Daan')
+    expect(wrapper.text()).toContain('departs 23:20 · to Xiangshan')
+    expect(wrapper.get('[data-testid="hero-label"]').text()).toBe('Soonest last train')
+  })
+
+  it('renders the English "departed" tag and tier copy once the last train has left', () => {
+    const wrapper = mount(HeroCard, {
+      props: {
+        station,
+        lineColor: '#d90023',
+        timetable: [makeEntry({ TripHeadSign: '往象山', LastTrainTime: '00:50' })],
+        now: new Date(2026, 8, 1, 1, 0),
+        lang: 'en',
+      },
+    })
+
+    expect(wrapper.text()).toContain('Last train has left')
+    expect(wrapper.text()).toContain('The metro has gone to bed.')
+    expect(wrapper.get('[data-testid="hero-label"]').text()).toBe('All directions done')
   })
 })

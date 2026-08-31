@@ -1,21 +1,25 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import type { Lang } from '../composables/useLanguage'
+import { directionLabel } from '../logic/directionLabel'
 import { summarizeDirections } from '../logic/summarizeDirections'
 import { TIER_STYLES } from '../logic/tier'
 import type { FirstLastTimetable } from '../logic/types'
+import { t } from '../i18n/translations'
 
 const props = defineProps<{
   directions: FirstLastTimetable[]
   now: Date
+  lang: Lang
 }>()
 
-const summaries = computed(() => summarizeDirections(props.directions, props.now))
+const summaries = computed(() => summarizeDirections(props.directions, props.now, props.lang))
 </script>
 
 <template>
   <div v-if="summaries.length > 0">
     <div class="mt-[18px] mb-[8px] text-[11.5px] font-extrabold tracking-[.5px] text-[#5d7c8c]">
-      各方向末班車
+      {{ t(lang, 'allDirections') }}
     </div>
     <div class="flex flex-col gap-[8px]">
       <div
@@ -30,7 +34,7 @@ const summaries = computed(() => summarizeDirections(props.directions, props.now
           :style="{ backgroundColor: TIER_STYLES[summary.tier].color }"
         />
         <div class="text-[14.5px] font-black text-[#16222b]">
-          {{ summary.entry.TripHeadSign }}
+          {{ directionLabel(summary.entry, lang) }}
         </div>
         <div class="ml-auto text-right">
           <div class="text-[20px] font-black tabular-nums text-[#16222b]">
