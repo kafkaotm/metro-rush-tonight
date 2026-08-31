@@ -30,7 +30,10 @@ const stationTimetable = computed(() => filterTimetableByStation(timetable, prop
 </script>
 
 <template>
-  <template v-if="line && station">
+  <div
+    v-if="line && station"
+    class="animate-[mrt-slide_0.3s_ease_both]"
+  >
     <BackButton
       label="換站"
       @click="router.push(`/lines/${lineId}`)"
@@ -45,5 +48,5 @@ const stationTimetable = computed(() => filterTimetableByStation(timetable, prop
       :directions="stationTimetable"
       :now="now"
     />
-  </template>
+  </div>
 </template>

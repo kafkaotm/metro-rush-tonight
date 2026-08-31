@@ -15,8 +15,10 @@ const emit = defineEmits<{
 <template>
   <ul class="m-0 flex list-none flex-col gap-[8px] p-0">
     <li
-      v-for="station in stations"
+      v-for="(station, index) in stations"
       :key="station.StationID"
+      class="animate-[mrt-in_0.34s_ease_both]"
+      :style="{ animationDelay: `${index * 0.03}s` }"
     >
       <StationButton
         :station="station"

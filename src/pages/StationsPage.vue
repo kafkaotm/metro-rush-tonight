@@ -25,7 +25,10 @@ function handleSelectStation(stationId: string) {
 </script>
 
 <template>
-  <template v-if="line">
+  <div
+    v-if="line"
+    class="animate-[mrt-slide_0.3s_ease_both]"
+  >
     <BackButton
       label="換一條線"
       @click="router.push('/')"
@@ -45,5 +48,5 @@ function handleSelectStation(stationId: string) {
       :line-color="line.LineColor"
       @select="handleSelectStation"
     />
-  </template>
+  </div>
 </template>
