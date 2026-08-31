@@ -1,11 +1,18 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import PressableButton from './PressableButton.vue'
+import type { Lang } from '../composables/useLanguage'
 import type { Station } from '../logic/types'
 
-defineProps<{
+const props = defineProps<{
   station: Station
   lineColor: string
+  lang: Lang
 }>()
+
+const name = computed(
+  () => (props.lang === 'en' ? props.station.StationName.En : undefined) ?? props.station.StationName.Zh_tw,
+)
 </script>
 
 <template>
@@ -17,7 +24,7 @@ defineProps<{
         :style="{ borderColor: lineColor }"
       />
       <span class="text-[15.5px] font-extrabold text-[#16222b]">
-        {{ station.StationName.Zh_tw }}
+        {{ name }}
       </span>
     </span>
   </PressableButton>

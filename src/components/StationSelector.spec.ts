@@ -20,14 +20,14 @@ const stations: Station[] = [
 
 describe('StationSelector', () => {
   it('renders the Chinese name of every station passed in, in the given order', () => {
-    const wrapper = mount(StationSelector, { props: { stations, lineColor: '#d90023' } })
+    const wrapper = mount(StationSelector, { props: { stations, lineColor: '#d90023', lang: 'zh' } })
 
     const options = wrapper.findAll('[data-testid="station-option"]')
     expect(options.map((o) => o.text())).toEqual(['信義安和', '大安'])
   })
 
   it('emits "select" with the StationID when a station is clicked', async () => {
-    const wrapper = mount(StationSelector, { props: { stations, lineColor: '#d90023' } })
+    const wrapper = mount(StationSelector, { props: { stations, lineColor: '#d90023', lang: 'zh' } })
 
     await wrapper.findAll('[data-testid="station-option"]')[1].trigger('click')
 
@@ -35,7 +35,7 @@ describe('StationSelector', () => {
   })
 
   it('renders no station options when given an empty list', () => {
-    const wrapper = mount(StationSelector, { props: { stations: [], lineColor: '#d90023' } })
+    const wrapper = mount(StationSelector, { props: { stations: [], lineColor: '#d90023', lang: 'zh' } })
 
     expect(wrapper.findAll('[data-testid="station-option"]')).toHaveLength(0)
   })

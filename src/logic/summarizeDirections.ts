@@ -1,3 +1,5 @@
+import type { Lang } from '../composables/useLanguage'
+import { t } from '../i18n/translations'
 import { minutesUntil } from './minutesUntil'
 import { getTier, type Tier } from './tier'
 import type { FirstLastTimetable } from './types'
@@ -9,14 +11,14 @@ export interface DirectionSummary {
   gapLabel: string
 }
 
-export function summarizeDirections(entries: FirstLastTimetable[], now: Date): DirectionSummary[] {
+export function summarizeDirections(entries: FirstLastTimetable[], now: Date, lang: Lang): DirectionSummary[] {
   return entries.map((entry) => {
     const mins = minutesUntil(entry.LastTrainTime, now)
     return {
       entry,
       mins,
       tier: getTier(mins),
-      gapLabel: mins < 0 ? '已過站' : `+${mins} min`,
+      gapLabel: mins < 0 ? t(lang, 'gapDeparted') : `+${mins} min`,
     }
   })
 }

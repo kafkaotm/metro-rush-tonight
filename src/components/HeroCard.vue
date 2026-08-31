@@ -1,21 +1,33 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import type { Lang } from '../composables/useLanguage'
+import { directionLabel } from '../logic/directionLabel'
 import { pickFeaturedDirection } from '../logic/pickFeaturedDirection'
 import { getTier, TIER_STYLES } from '../logic/tier'
 import type { FirstLastTimetable, Station } from '../logic/types'
+import { t } from '../i18n/translations'
 
 const props = defineProps<{
   station: Station
   lineColor: string
   timetable: FirstLastTimetable[]
   now: Date
+  lang: Lang
 }>()
 
 const featured = computed(() => pickFeaturedDirection(props.timetable, props.now))
 const tier = computed(() => (featured.value ? getTier(featured.value.mins) : null))
 const styles = computed(() => (tier.value ? TIER_STYLES[tier.value] : null))
 const isLive = computed(() => (featured.value ? featured.value.mins >= 0 : false))
-const heroLabel = computed(() => (isLive.value ? '最近一班末班車' : '各方向都收班了'))
+const heroLabel = computed(() => t(props.lang, isLive.value ? 'soonest' : 'allDone'))
+const stationName = computed(() => (props.lang === 'en' ? props.station.StationName.En : undefined) ?? props.station.StationName.Zh_tw)
+const heroSub = computed(() => {
+  if (!featured.value) return ''
+  const direction = directionLabel(featured.value.entry, props.lang)
+  return props.lang === 'en'
+    ? `departs ${featured.value.entry.LastTrainTime} · ${direction}`
+    : `${featured.value.entry.LastTrainTime} 開 · ${direction}`
+})
 
 const countdownAnimation = computed(() => {
   if (tier.value === 'panic') return 'animate-[mrt-pulse_0.9s_ease-in-out_infinite]'
@@ -36,7 +48,7 @@ const countdownAnimation = computed(() => {
         class="h-[10px] w-[10px] flex-none rounded-[9px]"
         :style="{ backgroundColor: lineColor }"
       />
-      <span class="text-[17px] font-black text-[#16222b]">{{ station.StationName.Zh_tw }}</span>
+      <span class="text-[17px] font-black text-[#16222b]">{{ stationName }}</span>
     </div>
 
     <div class="mt-[11px] flex items-center gap-[7px]">
@@ -66,7 +78,7 @@ const countdownAnimation = computed(() => {
           min
         </div>
         <div class="text-[11.5px] font-bold text-[#6b8998]">
-          {{ featured.entry.LastTrainTime }} 開 · {{ featured.entry.TripHeadSign }}
+          {{ heroSub }}
         </div>
       </div>
     </div>
@@ -81,15 +93,13 @@ const countdownAnimation = computed(() => {
       >
         {{ featured.entry.LastTrainTime }}
       </div>
-      <div
-        class="rounded-[9px] bg-[rgba(107,137,152,.14)] px-[9px] py-[5px] text-[12.5px] font-extrabold text-[#6b8998]"
-      >
-        末班車已離站
+      <div class="rounded-[9px] bg-[rgba(107,137,152,.14)] px-[9px] py-[5px] text-[12.5px] font-extrabold text-[#6b8998]">
+        {{ t(lang, 'departed') }}
       </div>
     </div>
 
     <div class="mt-[12px] text-[15px] leading-[1.4] font-black text-[#16222b]">
-      {{ styles.copy }}
+      {{ styles.copy[lang] }}
     </div>
   </div>
 </template>
