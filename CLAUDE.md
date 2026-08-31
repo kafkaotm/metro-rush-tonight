@@ -50,7 +50,37 @@ https://tdx.transportdata.tw/webapi/File/Swagger/V3/268fc230-2e04-471b-a728-a726
   `FirstTrainTime`、`LastTrainTime`（字串格式，非 ISO datetime）、`ServiceDay`
   - `ServiceDay`：`Monday`~`Sunday`、`NationalHolidays`（皆為 boolean）、`ServiceTag`（可為 null）
 
-這些欄位是官方 API 規格，尚未實測過真實回傳資料（值的實際內容、邊界案例）。
+這些欄位已用真實憑證實測過（詳見下方轉乘研究），大致符合官方規格，
+但有一處落差：`LineSectionName` 實測回傳 `{}`（非分支路線完全沒有 `Zh_tw`），
+因此程式碼裡型別已改為 `Partial<NameType>`。
+
+## 未來功能（v2）：轉乘查詢
+
+首末班車查詢（v1）先只做單站查詢，不含轉乘。以下是研究 TDX API 後的結論，
+留給之後要做「末班車轉乘是否來得及」這類功能時參考：
+
+- **轉乘站的跨線對應關係、以及轉乘所需時間，TDX 都有專門端點提供，不需要自己
+  用站名比對或手動維護表格**：
+  - `/LineTransfer/{RailSystem}`：`FromLineID`/`FromStationID` →
+    `ToLineID`/`ToStationID` 的轉乘關係，附 `TransferTime`（分鐘）、
+    `IsOnSiteTransfer`（1=站內轉乘、0=需走到另一站體）。實測台北車站
+    BL↔R 站內轉乘、西門 BL↔G 是 2 分鐘、板橋 BL↔Y 要 11 分鐘。
+  - `/TransferStations/{RailSystem}`：官方定義的轉乘站分組，
+    `TransferStationID` → `Stations[]`（跨線的多個 `StationID`），
+    比自己用站名字串比對可靠。
+  - `/StationTransfer/{RailSystem}`：更細的轉乘資訊（分樓層、出口，
+    還包含公車/停車場/計程車等站外轉乘），做進階版可以再參考。
+- **注意：`RailSystem` 代碼在不同端點不一致。** `Line`、`StationOfLine`、
+  `FirstLastTimetable`、`LineTransfer` 都吃 `TRTC`，但 `/TransferStations`
+  只接受 `TRTC_NTMC`（把臺北捷運跟新北捷運合併看待）或 `KRTC`，
+  傳 `TRTC` 會直接 400。串接轉乘功能時要注意這個端點對應的代碼要換。
+- **範圍缺口：`LineTransfer` 資料裡出現 `Y`（環狀線），但這條線不在
+  `/Line/TRTC` 裡**（環狀線屬於新北捷運系統）。也就是說可以查到「這裡可以
+  轉乘到環狀線」，但沒有環狀線本身的首末班車資料可以接著查——除非額外抓
+  `/Line/NTMC` 之類的端點。做轉乘功能前要先決定：只做 TRTC 系統內部轉乘，
+  還是要含環狀線這種跨系統轉乘。
+- TDX 額度（3,000 次/月）完全不是限制因素，這幾支端點抓取頻率跟現有三支
+  一樣（CI 排程時一起抓即可）。
 
 ## 資料策略：靜態 JSON + CI 定期更新
 
@@ -88,6 +118,6 @@ https://tdx.transportdata.tw/webapi/File/Swagger/V3/268fc230-2e04-471b-a728-a726
 
 ## 尚待確定事項
 
-- 欄位結構已對照官方 Swagger 確認（見上），但尚未用真實憑證實測過實際回傳資料
 - CI 排程的實際頻率與 workflow 設計細節
 - 具體動效設計（路網視覺化、搜尋篩選、倒數提示等）尚在構思階段
+- 轉乘查詢（v2）：範圍與設計細節見上方「未來功能」章節
