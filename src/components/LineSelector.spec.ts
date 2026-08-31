@@ -25,14 +25,14 @@ const lines: Line[] = [
 
 describe('LineSelector', () => {
   it('renders the Chinese name of every line passed in', () => {
-    const wrapper = mount(LineSelector, { props: { lines } })
+    const wrapper = mount(LineSelector, { props: { lines, lang: 'zh' } })
 
     expect(wrapper.text()).toContain('淡水信義線')
     expect(wrapper.text()).toContain('板南線')
   })
 
   it('emits "select" with the LineID when a line is clicked', async () => {
-    const wrapper = mount(LineSelector, { props: { lines } })
+    const wrapper = mount(LineSelector, { props: { lines, lang: 'zh' } })
 
     await wrapper.findAll('[data-testid="line-option"]')[1].trigger('click')
 
@@ -40,7 +40,7 @@ describe('LineSelector', () => {
   })
 
   it('renders each line option with a code badge in its LineColor', () => {
-    const wrapper = mount(LineSelector, { props: { lines } })
+    const wrapper = mount(LineSelector, { props: { lines, lang: 'zh' } })
 
     const badges = wrapper.findAll('[data-testid="line-badge"]')
     expect(badges[0].attributes('style')).toContain('background-color: rgb(217, 0, 35)')
@@ -50,7 +50,7 @@ describe('LineSelector', () => {
   })
 
   it('renders no line options when given an empty list', () => {
-    const wrapper = mount(LineSelector, { props: { lines: [] } })
+    const wrapper = mount(LineSelector, { props: { lines: [], lang: 'zh' } })
 
     expect(wrapper.findAll('[data-testid="line-option"]')).toHaveLength(0)
   })

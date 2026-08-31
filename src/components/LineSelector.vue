@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import LineButton from './LineButton.vue'
+import type { Lang } from '../composables/useLanguage'
 import type { Line } from '../logic/types'
 
 defineProps<{
   lines: Line[]
+  lang: Lang
 }>()
 
 const emit = defineEmits<{
@@ -19,6 +21,7 @@ const emit = defineEmits<{
     >
       <LineButton
         :line="line"
+        :lang="lang"
         data-testid="line-option"
         @click="emit('select', line.LineID)"
       />

@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import StationButton from './StationButton.vue'
+import type { Lang } from '../composables/useLanguage'
 import type { Station } from '../logic/types'
 
 defineProps<{
   stations: Station[]
   lineColor: string
+  lang: Lang
 }>()
 
 const emit = defineEmits<{
@@ -23,6 +25,7 @@ const emit = defineEmits<{
       <StationButton
         :station="station"
         :line-color="lineColor"
+        :lang="lang"
         data-testid="station-option"
         @click="emit('select', station.StationID)"
       />
