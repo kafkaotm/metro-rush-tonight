@@ -33,21 +33,22 @@ describe('summarizeDirections', () => {
     const now = new Date(2026, 7, 31, 23, 0) // 23:00
     const entries = [makeEntry({ TripHeadSign: '往象山', LastTrainTime: '23:12' })] // 12 min away -> run
 
-    const result = summarizeDirections(entries, now)
+    const result = summarizeDirections(entries, now, 'zh')
 
     expect(result).toEqual([
       { entry: entries[0], mins: 12, tier: 'run', gapLabel: '+12 min' },
     ])
   })
 
-  it('uses the "已過站" label for a direction whose last train already left', () => {
+  it('uses the "已過站" / "departed" label for a direction whose last train already left', () => {
     const now = new Date(2026, 8, 1, 0, 0) // 00:00
     const entries = [makeEntry({ TripHeadSign: '往淡水', LastTrainTime: '23:50' })] // 10 min ago -> gone
 
-    const result = summarizeDirections(entries, now)
-
-    expect(result).toEqual([
+    expect(summarizeDirections(entries, now, 'zh')).toEqual([
       { entry: entries[0], mins: -10, tier: 'gone', gapLabel: '已過站' },
+    ])
+    expect(summarizeDirections(entries, now, 'en')).toEqual([
+      { entry: entries[0], mins: -10, tier: 'gone', gapLabel: 'departed' },
     ])
   })
 
@@ -56,12 +57,12 @@ describe('summarizeDirections', () => {
     const soon = makeEntry({ TripHeadSign: '往象山', LastTrainTime: '23:03' }) // 3 min -> panic
     const later = makeEntry({ TripHeadSign: '往淡水', LastTrainTime: '23:45' }) // 45 min -> calm
 
-    const result = summarizeDirections([soon, later], now)
+    const result = summarizeDirections([soon, later], now, 'zh')
 
     expect(result.map((r) => r.tier)).toEqual(['panic', 'calm'])
   })
 
   it('returns an empty array when given no entries', () => {
-    expect(summarizeDirections([], new Date(2026, 7, 31, 23, 0))).toEqual([])
+    expect(summarizeDirections([], new Date(2026, 7, 31, 23, 0), 'zh')).toEqual([])
   })
 })
