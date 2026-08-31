@@ -19,13 +19,20 @@
 
 已申請 TDX 會員帳號，每月額度 3,000 次呼叫。
 
-會用到的端點（皆為臺北捷運 TRTC 系統）：
+會用到的端點：
 
 | 端點 | 用途 |
 |---|---|
-| `/Line/TRTC` | 取得所有路線清單（LineID、LineName、LineColor 等） |
-| `/StationOfLine/TRTC` | 依路線取得該線所有站點（含站序） |
-| `/FirstLastTimetable/TRTC` | 依站點取得首末班車時刻表 |
+| `/Line/{RailSystem}` | 取得所有路線清單（LineID、LineName、LineColor 等） |
+| `/StationOfLine/{RailSystem}` | 依路線取得該線所有站點（含站序） |
+| `/FirstLastTimetable/{RailSystem}` | 依站點取得首末班車時刻表 |
+
+`{RailSystem}` 會分別打 `TRTC`（臺北捷運本體）跟 `NTMC`（環狀線，
+行政上屬新北捷運公司營運）兩次，結果合併成同一份靜態 JSON。這兩個系統的
+`LineID`／`StationID` 命名空間互不重疊（環狀線是 `Y`／`Y01`~`Y21`，
+不會撞到 `BL`／`BR`／`G`／`O`／`R` 開頭的既有站點），可以直接合併，
+不需要額外的衝突處理邏輯。使用者體感上環狀線就是路網的一部分（官方路網圖
+本來就把它畫在一起），所以查詢頁面把它當作第 6 條路線正常呈現。
 
 Swagger UI 是前端渲染的 SPA，無法直接爬取；OpenAPI JSON 原始文件可直接下載：
 https://tdx.transportdata.tw/webapi/File/Swagger/V3/268fc230-2e04-471b-a728-a726167c1cfc
