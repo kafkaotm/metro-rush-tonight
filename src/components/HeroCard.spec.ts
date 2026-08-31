@@ -61,6 +61,7 @@ describe('HeroCard', () => {
 
     expect(wrapper.get('[data-testid="countdown"]').text()).toBe('20')
     expect(wrapper.text()).toContain('23:20 開 · 往象山')
+    expect(wrapper.get('[data-testid="hero-label"]').text()).toBe('最近一班末班車')
   })
 
   it('shows a struck-through departed time and a "departed" tag once the last train has left', () => {
@@ -76,6 +77,7 @@ describe('HeroCard', () => {
     expect(wrapper.find('[data-testid="countdown"]').exists()).toBe(false)
     expect(wrapper.get('[data-testid="departed-time"]').text()).toBe('00:50')
     expect(wrapper.text()).toContain('末班車已離站')
+    expect(wrapper.get('[data-testid="hero-label"]').text()).toBe('各方向都收班了')
   })
 
   it('shows the tier copy text and applies the tier background color to the card', () => {

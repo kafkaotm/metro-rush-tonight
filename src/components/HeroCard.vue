@@ -15,6 +15,7 @@ const featured = computed(() => pickFeaturedDirection(props.timetable, props.now
 const tier = computed(() => (featured.value ? getTier(featured.value.mins) : null))
 const styles = computed(() => (tier.value ? TIER_STYLES[tier.value] : null))
 const isLive = computed(() => (featured.value ? featured.value.mins >= 0 : false))
+const heroLabel = computed(() => (isLive.value ? '最近一班末班車' : '各方向都收班了'))
 
 const countdownAnimation = computed(() => {
   if (tier.value === 'panic') return 'animate-[mrt-pulse_0.9s_ease-in-out_infinite]'
@@ -38,9 +39,16 @@ const countdownAnimation = computed(() => {
       <span class="text-[17px] font-black text-[#16222b]">{{ station.StationName.Zh_tw }}</span>
     </div>
 
+    <div class="mt-[11px] flex items-center gap-[7px]">
+      <span
+        class="text-[12.5px] font-extrabold text-[#6b8998]"
+        data-testid="hero-label"
+      >{{ heroLabel }}</span>
+    </div>
+
     <div
       v-if="isLive"
-      class="mt-[12px] flex items-end gap-[8px]"
+      class="mt-[4px] flex items-end gap-[8px]"
     >
       <div
         :class="countdownAnimation"

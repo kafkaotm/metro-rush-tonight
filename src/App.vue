@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import DirectionList from './components/DirectionList.vue'
 import HeroCard from './components/HeroCard.vue'
 import LineSelector from './components/LineSelector.vue'
 import StationSelector from './components/StationSelector.vue'
@@ -56,12 +57,17 @@ function handleSelectStation(stationId: string) {
       @select="handleSelectStation"
     />
 
-    <HeroCard
-      v-else
-      :station="selectedStation"
-      :line-color="selectedLine.LineColor"
-      :timetable="stationTimetable"
-      :now="now"
-    />
+    <template v-else>
+      <HeroCard
+        :station="selectedStation"
+        :line-color="selectedLine.LineColor"
+        :timetable="stationTimetable"
+        :now="now"
+      />
+      <DirectionList
+        :directions="stationTimetable"
+        :now="now"
+      />
+    </template>
   </main>
 </template>
