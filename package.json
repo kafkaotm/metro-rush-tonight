@@ -12,7 +12,8 @@
     "fetch:tdx": "node --env-file=.env scripts/fetch-tdx-data.ts"
   },
   "dependencies": {
-    "vue": "^3.5.41"
+    "vue": "^3.5.41",
+    "vue-router": "^5.3.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
