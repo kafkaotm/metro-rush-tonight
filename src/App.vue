@@ -1,21 +1,32 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import HeroCard from './components/HeroCard.vue'
 import LineSelector from './components/LineSelector.vue'
 import StationSelector from './components/StationSelector.vue'
 import linesData from './data/lines.json'
 import stationsOfLineData from './data/stationsOfLine.json'
+import timetableData from './data/timetable.json'
 import { filterStationsByLine } from './logic/filterStationsByLine'
-import type { Line, StationOfLine } from './logic/types'
+import { filterTimetableByStation } from './logic/filterTimetableByStation'
+import type { FirstLastTimetable, Line, StationOfLine } from './logic/types'
 
 const lines = linesData as Line[]
 const stationsOfLine = stationsOfLineData as StationOfLine[]
+const timetable = timetableData as FirstLastTimetable[]
 
 const selectedLineId = ref<string | null>(null)
 const selectedStationId = ref<string | null>(null)
+const now = ref(new Date())
 
 const selectedLine = computed(() => lines.find((line) => line.LineID === selectedLineId.value) ?? null)
 const stations = computed(() =>
   selectedLineId.value ? filterStationsByLine(stationsOfLine, selectedLineId.value) : [],
+)
+const selectedStation = computed(
+  () => stations.value.find((station) => station.StationID === selectedStationId.value) ?? null,
+)
+const stationTimetable = computed(() =>
+  selectedStationId.value ? filterTimetableByStation(timetable, selectedStationId.value) : [],
 )
 
 function handleSelectLine(lineId: string) {
@@ -39,14 +50,18 @@ function handleSelectStation(stationId: string) {
     />
 
     <StationSelector
-      v-else
+      v-else-if="!selectedStation"
       :stations="stations"
       :line-color="selectedLine.LineColor"
       @select="handleSelectStation"
     />
 
-    <p v-if="selectedStationId">
-      已選站點：{{ selectedStationId }}
-    </p>
+    <HeroCard
+      v-else
+      :station="selectedStation"
+      :line-color="selectedLine.LineColor"
+      :timetable="stationTimetable"
+      :now="now"
+    />
   </main>
 </template>
