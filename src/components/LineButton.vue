@@ -16,7 +16,7 @@ defineProps<{
     >
       {{ line.LineNo ?? line.LineID }}
     </span>
-    <span class="block font-['Noto_Sans_TC'] text-[15.5px] font-black text-[#16222b]">
+    <span class="block text-[15.5px] font-black text-[#16222b]">
       {{ line.LineName.Zh_tw }}
     </span>
   </PressableButton>

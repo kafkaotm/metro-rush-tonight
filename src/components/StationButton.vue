@@ -16,7 +16,7 @@ defineProps<{
         data-testid="platform-dot"
         :style="{ borderColor: lineColor }"
       />
-      <span class="font-['Noto_Sans_TC'] text-[15.5px] font-extrabold text-[#16222b]">
+      <span class="text-[15.5px] font-extrabold text-[#16222b]">
         {{ station.StationName.Zh_tw }}
       </span>
     </span>
