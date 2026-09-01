@@ -66,6 +66,29 @@ describe('useFavorites', () => {
     expect(b.favorites.value).toEqual([{ lineId: 'R', stationId: 'R05', direction: '往象山' }])
   })
 
+  it('removeFavorite removes just the matching entry', () => {
+    const { toggleFavorite, removeFavorite, favorites } = useFavorites()
+    toggleFavorite('R', 'R05', '往象山')
+    toggleFavorite('R', 'R05', '往淡水')
+
+    removeFavorite('R', 'R05', '往象山')
+
+    expect(favorites.value).toEqual([{ lineId: 'R', stationId: 'R05', direction: '往淡水' }])
+  })
+
+  it('pruneInvalid keeps only entries for which isValid returns true, and persists the result', () => {
+    const { toggleFavorite, pruneInvalid, favorites } = useFavorites()
+    toggleFavorite('R', 'R05', '往象山')
+    toggleFavorite('R', 'R99', '往淡水')
+
+    pruneInvalid((entry) => entry.stationId === 'R05')
+
+    expect(favorites.value).toEqual([{ lineId: 'R', stationId: 'R05', direction: '往象山' }])
+    expect(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]')).toEqual([
+      { lineId: 'R', stationId: 'R05', direction: '往象山' },
+    ])
+  })
+
   describe('loading from localStorage on startup', () => {
     afterEach(() => {
       localStorage.clear()
