@@ -82,15 +82,31 @@ describe('DirectionList', () => {
     expect(bars[1].attributes('style')).toContain('background-color: rgb(15, 137, 201)')
   })
 
-  it('renders the "各方向末班車" / "All directions" label and English direction text when lang is "en"', () => {
+  it('renders the "各方向末班車" / "All directions" label when the station has multiple directions', () => {
     const now = new Date(2026, 7, 31, 23, 0)
-    const directions = [makeEntry({ TripHeadSign: '往象山', LastTrainTime: '22:50' })] // departed
+    const directions = [
+      makeEntry({ TripHeadSign: '往象山', LastTrainTime: '22:50' }),
+      makeEntry({ TripHeadSign: '往淡水', LastTrainTime: '23:10' }),
+    ]
 
     const wrapper = mount(DirectionList, { props: { directions, now, lang: 'en' } })
 
     expect(wrapper.text()).toContain('All directions')
     expect(wrapper.get('[data-testid="direction-row"]').text()).toContain('to Xiangshan')
     expect(wrapper.get('[data-testid="direction-row"]').text()).toContain('departed')
+  })
+
+  it('renders the "末班車" / "Last train" label when the station has only one direction (terminal station)', () => {
+    const now = new Date(2026, 7, 31, 23, 0)
+    const directions = [makeEntry({ TripHeadSign: '往象山', LastTrainTime: '23:30' })]
+
+    const zh = mount(DirectionList, { props: { directions, now, lang: 'zh' } })
+    const en = mount(DirectionList, { props: { directions, now, lang: 'en' } })
+
+    expect(zh.text()).toContain('末班車')
+    expect(zh.text()).not.toContain('各方向末班車')
+    expect(en.text()).toContain('Last train')
+    expect(en.text()).not.toContain('All directions')
   })
 
   it('renders no rows when given an empty list', () => {
