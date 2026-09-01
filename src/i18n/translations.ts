@@ -12,6 +12,7 @@ interface Translations {
   oneDirection: string
   departed: string
   gapDeparted: string
+  favDeparted: string
   favHint: string
   fromHome: string
 }
@@ -29,6 +30,7 @@ export const translations: Record<Lang, Translations> = {
     oneDirection: '末班車',
     departed: '末班車已離站',
     gapDeparted: '已過站',
+    favDeparted: '已收班',
     favHint: '按 ☆ 把這個方向放到首頁',
     fromHome: '我的路線',
   },
@@ -44,6 +46,7 @@ export const translations: Record<Lang, Translations> = {
     oneDirection: 'Last train',
     departed: 'Last train has left',
     gapDeparted: 'departed',
+    favDeparted: 'closed',
     favHint: 'Tap ☆ to save this direction to your home screen',
     fromHome: 'SAVED',
   },
