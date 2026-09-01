@@ -43,10 +43,10 @@ const timetable: FirstLastTimetable[] = [
 
 describe('resolveFavorite', () => {
   it('resolves a valid favorite into its display data', () => {
-    const result = resolveFavorite({ lineId: 'R', stationId: 'R05', direction: '往象山' }, lines, timetable)
+    const result = resolveFavorite({ lineId: 'R', stationId: 'R05', destinationStationId: 'R02' }, lines, timetable)
 
     expect(result).toEqual({
-      favorite: { lineId: 'R', stationId: 'R05', direction: '往象山' },
+      favorite: { lineId: 'R', stationId: 'R05', destinationStationId: 'R02' },
       stationName: { Zh_tw: '大安', En: 'Daan' },
       lineName: { Zh_tw: '淡水信義線', En: 'Tamsui-Xinyi Line' },
       lineColor: '#d90023',
@@ -55,19 +55,19 @@ describe('resolveFavorite', () => {
   })
 
   it('returns null when the line no longer exists', () => {
-    const result = resolveFavorite({ lineId: 'ZZ', stationId: 'R05', direction: '往象山' }, lines, timetable)
+    const result = resolveFavorite({ lineId: 'ZZ', stationId: 'R05', destinationStationId: 'R02' }, lines, timetable)
 
     expect(result).toBeNull()
   })
 
   it('returns null when the station no longer exists on that line', () => {
-    const result = resolveFavorite({ lineId: 'R', stationId: 'R99', direction: '往象山' }, lines, timetable)
+    const result = resolveFavorite({ lineId: 'R', stationId: 'R99', destinationStationId: 'R02' }, lines, timetable)
 
     expect(result).toBeNull()
   })
 
-  it('returns null when the direction no longer exists at that station', () => {
-    const result = resolveFavorite({ lineId: 'R', stationId: 'R05', direction: '往淡水' }, lines, timetable)
+  it('returns null when the destination no longer exists at that station', () => {
+    const result = resolveFavorite({ lineId: 'R', stationId: 'R05', destinationStationId: 'R28' }, lines, timetable)
 
     expect(result).toBeNull()
   })

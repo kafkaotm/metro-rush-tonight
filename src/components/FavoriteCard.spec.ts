@@ -28,7 +28,7 @@ function makeResolved(overrides: Partial<ResolvedFavorite> = {}): ResolvedFavori
     ServiceDay: everyDay,
   }
   return {
-    favorite: { lineId: 'R', stationId: 'R05', direction: '往象山' },
+    favorite: { lineId: 'R', stationId: 'R05', destinationStationId: 'R02' },
     stationName: { Zh_tw: '大安', En: 'Daan' },
     lineName: { Zh_tw: '淡水信義線', En: 'Tamsui-Xinyi Line' },
     lineColor: '#d90023',

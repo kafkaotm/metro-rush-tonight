@@ -16,16 +16,16 @@ describe('useFavorites', () => {
   it('toggleFavorite adds an entry when not already favorited', () => {
     const { toggleFavorite, favorites } = useFavorites()
 
-    toggleFavorite('R', 'R05', '往象山')
+    toggleFavorite('R', 'R05', 'R02')
 
-    expect(favorites.value).toEqual([{ lineId: 'R', stationId: 'R05', direction: '往象山' }])
+    expect(favorites.value).toEqual([{ lineId: 'R', stationId: 'R05', destinationStationId: 'R02' }])
   })
 
   it('toggleFavorite removes the entry when already favorited', () => {
     const { toggleFavorite, favorites } = useFavorites()
-    toggleFavorite('R', 'R05', '往象山')
+    toggleFavorite('R', 'R05', 'R02')
 
-    toggleFavorite('R', 'R05', '往象山')
+    toggleFavorite('R', 'R05', 'R02')
 
     expect(favorites.value).toEqual([])
   })
@@ -33,16 +33,16 @@ describe('useFavorites', () => {
   it('isFavorited reflects the current state', () => {
     const { toggleFavorite, isFavorited } = useFavorites()
 
-    expect(isFavorited('R', 'R05', '往象山')).toBe(false)
-    toggleFavorite('R', 'R05', '往象山')
-    expect(isFavorited('R', 'R05', '往象山')).toBe(true)
+    expect(isFavorited('R', 'R05', 'R02')).toBe(false)
+    toggleFavorite('R', 'R05', 'R02')
+    expect(isFavorited('R', 'R05', 'R02')).toBe(true)
   })
 
-  it('treats the same station with a different direction as a separate favorite', () => {
+  it('treats the same station with a different destination as a separate favorite', () => {
     const { toggleFavorite, favorites } = useFavorites()
 
-    toggleFavorite('R', 'R05', '往象山')
-    toggleFavorite('R', 'R05', '往淡水')
+    toggleFavorite('R', 'R05', 'R02')
+    toggleFavorite('R', 'R05', 'R28')
 
     expect(favorites.value).toHaveLength(2)
   })
@@ -50,10 +50,10 @@ describe('useFavorites', () => {
   it('persists toggles to localStorage', () => {
     const { toggleFavorite } = useFavorites()
 
-    toggleFavorite('R', 'R05', '往象山')
+    toggleFavorite('R', 'R05', 'R02')
 
     expect(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]')).toEqual([
-      { lineId: 'R', stationId: 'R05', direction: '往象山' },
+      { lineId: 'R', stationId: 'R05', destinationStationId: 'R02' },
     ])
   })
 
@@ -61,31 +61,31 @@ describe('useFavorites', () => {
     const a = useFavorites()
     const b = useFavorites()
 
-    a.toggleFavorite('R', 'R05', '往象山')
+    a.toggleFavorite('R', 'R05', 'R02')
 
-    expect(b.favorites.value).toEqual([{ lineId: 'R', stationId: 'R05', direction: '往象山' }])
+    expect(b.favorites.value).toEqual([{ lineId: 'R', stationId: 'R05', destinationStationId: 'R02' }])
   })
 
   it('removeFavorite removes just the matching entry', () => {
     const { toggleFavorite, removeFavorite, favorites } = useFavorites()
-    toggleFavorite('R', 'R05', '往象山')
-    toggleFavorite('R', 'R05', '往淡水')
+    toggleFavorite('R', 'R05', 'R02')
+    toggleFavorite('R', 'R05', 'R28')
 
-    removeFavorite('R', 'R05', '往象山')
+    removeFavorite('R', 'R05', 'R02')
 
-    expect(favorites.value).toEqual([{ lineId: 'R', stationId: 'R05', direction: '往淡水' }])
+    expect(favorites.value).toEqual([{ lineId: 'R', stationId: 'R05', destinationStationId: 'R28' }])
   })
 
   it('pruneInvalid keeps only entries for which isValid returns true, and persists the result', () => {
     const { toggleFavorite, pruneInvalid, favorites } = useFavorites()
-    toggleFavorite('R', 'R05', '往象山')
-    toggleFavorite('R', 'R99', '往淡水')
+    toggleFavorite('R', 'R05', 'R02')
+    toggleFavorite('R', 'R99', 'R28')
 
     pruneInvalid((entry) => entry.stationId === 'R05')
 
-    expect(favorites.value).toEqual([{ lineId: 'R', stationId: 'R05', direction: '往象山' }])
+    expect(favorites.value).toEqual([{ lineId: 'R', stationId: 'R05', destinationStationId: 'R02' }])
     expect(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]')).toEqual([
-      { lineId: 'R', stationId: 'R05', direction: '往象山' },
+      { lineId: 'R', stationId: 'R05', destinationStationId: 'R02' },
     ])
   })
 
@@ -95,12 +95,14 @@ describe('useFavorites', () => {
     })
 
     it('hydrates favorites already stored in localStorage', async () => {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify([{ lineId: 'R', stationId: 'R05', direction: '往象山' }]))
+      localStorage.setItem(STORAGE_KEY, JSON.stringify([{ lineId: 'R', stationId: 'R05', destinationStationId: 'R02' }]))
 
       vi.resetModules()
       const { useFavorites: freshUseFavorites } = await import('./useFavorites')
 
-      expect(freshUseFavorites().favorites.value).toEqual([{ lineId: 'R', stationId: 'R05', direction: '往象山' }])
+      expect(freshUseFavorites().favorites.value).toEqual([
+        { lineId: 'R', stationId: 'R05', destinationStationId: 'R02' },
+      ])
     })
 
     it('falls back to an empty list when localStorage holds malformed data', async () => {

@@ -35,6 +35,16 @@ function makeEntry(overrides: Partial<FirstLastTimetable> = {}): FirstLastTimeta
   }
 }
 
+// 往淡水 direction, as a fully-distinct destination from the 往象山 default above.
+function makeTamsuiEntry(overrides: Partial<FirstLastTimetable> = {}): FirstLastTimetable {
+  return makeEntry({
+    TripHeadSign: '往淡水',
+    DestinationStaionID: 'R28',
+    DestinationStationName: { Zh_tw: '淡水', En: 'Tamsui' },
+    ...overrides,
+  })
+}
+
 describe('HeroCard', () => {
   it('renders the station name', () => {
     const wrapper = mount(HeroCard, {
@@ -56,10 +66,7 @@ describe('HeroCard', () => {
         props: {
           station,
           lineColor: '#d90023',
-          timetable: [
-            makeEntry({ TripHeadSign: '往象山', LastTrainTime: '23:20' }),
-            makeEntry({ TripHeadSign: '往淡水', LastTrainTime: '23:45' }),
-          ],
+          timetable: [makeEntry({ LastTrainTime: '23:20' }), makeTamsuiEntry({ LastTrainTime: '23:45' })],
           now: new Date(2026, 7, 31, 23, 0), // 20 minutes before 23:20
           lang: 'zh',
         },
@@ -75,10 +82,7 @@ describe('HeroCard', () => {
         props: {
           station,
           lineColor: '#d90023',
-          timetable: [
-            makeEntry({ TripHeadSign: '往象山', LastTrainTime: '00:50' }),
-            makeEntry({ TripHeadSign: '往淡水', LastTrainTime: '00:20' }),
-          ],
+          timetable: [makeEntry({ LastTrainTime: '00:50' }), makeTamsuiEntry({ LastTrainTime: '00:20' })],
           now: new Date(2026, 8, 1, 1, 0), // 10/40 minutes after — both gone
           lang: 'zh',
         },
@@ -91,23 +95,23 @@ describe('HeroCard', () => {
       expect(wrapper.text()).toContain('今晚的捷運先睡了。')
     })
 
-    it('says the shown direction closed for the night when a sibling direction is still live', () => {
+    it('picks the live direction over a departed sibling', () => {
       const wrapper = mount(HeroCard, {
         props: {
           station,
           lineColor: '#d90023',
           timetable: [
-            makeEntry({ TripHeadSign: '往象山', LastTrainTime: '22:50' }), // departed
-            makeEntry({ TripHeadSign: '往淡水', LastTrainTime: '23:30' }), // still live
+            makeEntry({ LastTrainTime: '22:50' }), // departed
+            makeTamsuiEntry({ LastTrainTime: '23:30' }), // still live
           ],
           now: new Date(2026, 7, 31, 23, 0),
           lang: 'zh',
         },
       })
 
-      // auto mode always shows the live one when any exists, so this only
-      // arises via a specified direction — covered below. Here we just
-      // confirm auto mode picks the live direction, not the departed one.
+      // auto mode always shows the live one when any exists, so the "shown
+      // direction closed while a sibling is live" copy only ever arises via
+      // a specified direction — covered below.
       expect(wrapper.get('[data-testid="countdown"]').text()).toBe('30')
     })
 
@@ -117,8 +121,8 @@ describe('HeroCard', () => {
           station,
           lineColor: '#d90023',
           timetable: [
-            makeEntry({ TripHeadSign: '往象山', LastTrainTime: '23:30' }), // calm
-            makeEntry({ TripHeadSign: '往淡水', LastTrainTime: '23:45' }),
+            makeEntry({ LastTrainTime: '23:30' }), // calm
+            makeTamsuiEntry({ LastTrainTime: '23:45' }),
           ],
           now: new Date(2026, 7, 31, 23, 0),
           lang: 'zh',
@@ -136,10 +140,7 @@ describe('HeroCard', () => {
         props: {
           station,
           lineColor: '#d90023',
-          timetable: [
-            makeEntry({ TripHeadSign: '往象山', LastTrainTime: '23:20' }),
-            makeEntry({ TripHeadSign: '往淡水', LastTrainTime: '23:45' }),
-          ],
+          timetable: [makeEntry({ LastTrainTime: '23:20' }), makeTamsuiEntry({ LastTrainTime: '23:45' })],
           now: new Date(2026, 7, 31, 23, 0),
           lang: 'en',
         },
@@ -157,7 +158,7 @@ describe('HeroCard', () => {
         props: {
           station,
           lineColor: '#d90023',
-          timetable: [makeEntry({ TripHeadSign: '往淡水', LastTrainTime: '23:20' })],
+          timetable: [makeTamsuiEntry({ LastTrainTime: '23:20' })],
           now: new Date(2026, 7, 31, 23, 0),
           lang: 'zh',
         },
@@ -171,8 +172,8 @@ describe('HeroCard', () => {
 
   describe('specified direction (from a favorite)', () => {
     const directions: FirstLastTimetable[] = [
-      makeEntry({ TripHeadSign: '往象山', LastTrainTime: '22:50' }), // departed
-      makeEntry({ TripHeadSign: '往淡水', LastTrainTime: '23:30' }), // still live
+      makeEntry({ LastTrainTime: '22:50' }), // 往象山, departed
+      makeTamsuiEntry({ LastTrainTime: '23:30' }), // 往淡水, still live
     ]
 
     it('always shows the specified direction, even when a sibling direction is still live', () => {
@@ -183,7 +184,7 @@ describe('HeroCard', () => {
           timetable: directions,
           now: new Date(2026, 7, 31, 23, 0),
           lang: 'zh',
-          specifiedDirection: '往象山',
+          specifiedDestinationStationId: 'R02', // 往象山
         },
       })
 
@@ -200,7 +201,7 @@ describe('HeroCard', () => {
           timetable: directions,
           now: new Date(2026, 7, 31, 23, 0),
           lang: 'zh',
-          specifiedDirection: '往淡水',
+          specifiedDestinationStationId: 'R28', // 往淡水
         },
       })
       const auto = mount(HeroCard, {
@@ -219,7 +220,7 @@ describe('HeroCard', () => {
           timetable: directions,
           now: new Date(2026, 7, 31, 23, 0),
           lang: 'zh',
-          specifiedDirection: '往象山',
+          specifiedDestinationStationId: 'R02', // 往象山
         },
       })
 

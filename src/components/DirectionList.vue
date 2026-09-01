@@ -19,7 +19,7 @@ const { isFavorited, toggleFavorite } = useFavorites()
 
 const summaries = computed(() => summarizeDirections(props.directions, props.now, props.lang))
 const hasFavoritedDirection = computed(() =>
-  props.directions.some((entry) => isFavorited(entry.LineID, entry.StationID, entry.TripHeadSign ?? '')),
+  props.directions.some((entry) => isFavorited(entry.LineID, entry.StationID, entry.DestinationStaionID)),
 )
 const headerLabel = computed(() => t(props.lang, props.directions.length === 1 ? 'oneDirection' : 'allDirections'))
 </script>
@@ -38,7 +38,7 @@ const headerLabel = computed(() => t(props.lang, props.directions.length === 1 ?
     <div class="flex flex-col gap-[8px]">
       <div
         v-for="summary in summaries"
-        :key="summary.entry.TripHeadSign"
+        :key="summary.entry.DestinationStaionID"
         class="flex items-center gap-[12px] rounded-[16px] bg-white p-[14px] shadow-[0_2px_0_rgba(16,40,55,.09)]"
         data-testid="direction-row"
       >
@@ -63,8 +63,8 @@ const headerLabel = computed(() => t(props.lang, props.directions.length === 1 ?
             </div>
           </div>
           <FavoriteButton
-            :favorited="isFavorited(summary.entry.LineID, summary.entry.StationID, summary.entry.TripHeadSign ?? '')"
-            @click="toggleFavorite(summary.entry.LineID, summary.entry.StationID, summary.entry.TripHeadSign ?? '')"
+            :favorited="isFavorited(summary.entry.LineID, summary.entry.StationID, summary.entry.DestinationStaionID)"
+            @click="toggleFavorite(summary.entry.LineID, summary.entry.StationID, summary.entry.DestinationStaionID)"
           />
         </div>
       </div>

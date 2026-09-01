@@ -15,11 +15,11 @@ const props = defineProps<{
   timetable: FirstLastTimetable[]
   now: Date
   lang: Lang
-  specifiedDirection?: string
+  specifiedDestinationStationId?: string
 }>()
 
 const pinnedEntry = computed(
-  () => props.timetable.find((entry) => entry.TripHeadSign === props.specifiedDirection) ?? null,
+  () => props.timetable.find((entry) => entry.DestinationStaionID === props.specifiedDestinationStationId) ?? null,
 )
 const isPinned = computed(() => pinnedEntry.value !== null)
 const isSingleDirection = computed(() => props.timetable.length === 1)

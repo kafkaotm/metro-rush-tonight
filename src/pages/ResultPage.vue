@@ -34,12 +34,13 @@ const station = computed(() =>
 const stationTimetable = computed(() => filterTimetableByStation(timetable, props.stationId))
 
 // A ?direction= query param only ever gets set by a favorite card on the
-// home page (see LinesPage) — its presence is what "來源" means here.
-const specifiedDirection = computed(() => {
+// home page (see LinesPage) — its presence is what "來源" means here. The
+// value is a DestinationStaionID, not the display TripHeadSign text.
+const specifiedDestinationStationId = computed(() => {
   const value = route.query.direction
   return typeof value === 'string' ? value : undefined
 })
-const fromHome = computed(() => specifiedDirection.value !== undefined)
+const fromHome = computed(() => specifiedDestinationStationId.value !== undefined)
 
 function handleBack() {
   router.push(fromHome.value ? '/' : `/lines/${props.lineId}`)
@@ -61,7 +62,7 @@ function handleBack() {
       :timetable="stationTimetable"
       :now="now"
       :lang="lang"
-      :specified-direction="specifiedDirection"
+      :specified-destination-station-id="specifiedDestinationStationId"
     />
     <DirectionList
       :directions="stationTimetable"

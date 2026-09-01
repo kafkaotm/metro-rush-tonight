@@ -19,7 +19,7 @@ export function resolveFavorite(
     (candidate) =>
       candidate.LineID === favorite.lineId &&
       candidate.StationID === favorite.stationId &&
-      candidate.TripHeadSign === favorite.direction,
+      candidate.DestinationStaionID === favorite.destinationStationId,
   )
   if (!line || !entry) {
     return null

@@ -1,9 +1,12 @@
 import { ref } from 'vue'
 
+// destinationStationId (not the display TripHeadSign text) identifies a
+// direction — it's a stable station ID, not a free-text label TDX could
+// reword in a future data refresh and silently break every saved favorite.
 export interface FavoriteEntry {
   lineId: string
   stationId: string
-  direction: string
+  destinationStationId: string
 }
 
 const STORAGE_KEY = 'mrt.favs'
@@ -14,7 +17,7 @@ function isFavoriteEntry(value: unknown): value is FavoriteEntry {
     value !== null &&
     typeof (value as FavoriteEntry).lineId === 'string' &&
     typeof (value as FavoriteEntry).stationId === 'string' &&
-    typeof (value as FavoriteEntry).direction === 'string'
+    typeof (value as FavoriteEntry).destinationStationId === 'string'
   )
 }
 
@@ -37,24 +40,26 @@ function persist(): void {
 }
 
 function isSameEntry(a: FavoriteEntry, b: FavoriteEntry): boolean {
-  return a.lineId === b.lineId && a.stationId === b.stationId && a.direction === b.direction
+  return a.lineId === b.lineId && a.stationId === b.stationId && a.destinationStationId === b.destinationStationId
 }
 
 export function useFavorites() {
-  function isFavorited(lineId: string, stationId: string, direction: string): boolean {
-    return favorites.value.some((entry) => isSameEntry(entry, { lineId, stationId, direction }))
+  function isFavorited(lineId: string, stationId: string, destinationStationId: string): boolean {
+    return favorites.value.some((entry) => isSameEntry(entry, { lineId, stationId, destinationStationId }))
   }
 
-  function toggleFavorite(lineId: string, stationId: string, direction: string): void {
-    const target = { lineId, stationId, direction }
-    favorites.value = isFavorited(lineId, stationId, direction)
+  function toggleFavorite(lineId: string, stationId: string, destinationStationId: string): void {
+    const target = { lineId, stationId, destinationStationId }
+    favorites.value = isFavorited(lineId, stationId, destinationStationId)
       ? favorites.value.filter((entry) => !isSameEntry(entry, target))
       : [...favorites.value, target]
     persist()
   }
 
-  function removeFavorite(lineId: string, stationId: string, direction: string): void {
-    favorites.value = favorites.value.filter((entry) => !isSameEntry(entry, { lineId, stationId, direction }))
+  function removeFavorite(lineId: string, stationId: string, destinationStationId: string): void {
+    favorites.value = favorites.value.filter(
+      (entry) => !isSameEntry(entry, { lineId, stationId, destinationStationId }),
+    )
     persist()
   }
 

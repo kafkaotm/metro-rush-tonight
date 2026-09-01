@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import FavoriteCard from '../components/FavoriteCard.vue'
 import LineSelector from '../components/LineSelector.vue'
 import { useFavorites } from '../composables/useFavorites'
+import type { FavoriteEntry } from '../composables/useFavorites'
 import { useLanguage } from '../composables/useLanguage'
 import { useNow } from '../composables/useNow'
 import linesData from '../data/lines.json'
@@ -33,12 +34,15 @@ function handleSelectLine(lineId: string) {
   router.push(`/lines/${lineId}`)
 }
 
-function handleSelectFavorite(favorite: { lineId: string; stationId: string; direction: string }) {
-  router.push({ path: `/lines/${favorite.lineId}/stations/${favorite.stationId}`, query: { direction: favorite.direction } })
+function handleSelectFavorite(favorite: FavoriteEntry) {
+  router.push({
+    path: `/lines/${favorite.lineId}/stations/${favorite.stationId}`,
+    query: { direction: favorite.destinationStationId },
+  })
 }
 
-function handleRemoveFavorite(favorite: { lineId: string; stationId: string; direction: string }) {
-  removeFavorite(favorite.lineId, favorite.stationId, favorite.direction)
+function handleRemoveFavorite(favorite: FavoriteEntry) {
+  removeFavorite(favorite.lineId, favorite.stationId, favorite.destinationStationId)
   if (favorites.value.length === 0) {
     editing.value = false
   }
@@ -63,7 +67,7 @@ function handleRemoveFavorite(favorite: { lineId: string; stationId: string; dir
     <div class="flex flex-col gap-[9px]">
       <div
         v-for="resolved in resolvedFavorites"
-        :key="`${resolved.favorite.lineId}-${resolved.favorite.stationId}-${resolved.favorite.direction}`"
+        :key="`${resolved.favorite.lineId}-${resolved.favorite.stationId}-${resolved.favorite.destinationStationId}`"
         class="animate-[mrt-in_0.34s_ease_both]"
       >
         <FavoriteCard
