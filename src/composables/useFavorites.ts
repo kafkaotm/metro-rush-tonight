@@ -53,5 +53,18 @@ export function useFavorites() {
     persist()
   }
 
-  return { favorites, isFavorited, toggleFavorite }
+  function removeFavorite(lineId: string, stationId: string, direction: string): void {
+    favorites.value = favorites.value.filter((entry) => !isSameEntry(entry, { lineId, stationId, direction }))
+    persist()
+  }
+
+  function pruneInvalid(isValid: (entry: FavoriteEntry) => boolean): void {
+    const pruned = favorites.value.filter(isValid)
+    if (pruned.length !== favorites.value.length) {
+      favorites.value = pruned
+      persist()
+    }
+  }
+
+  return { favorites, isFavorited, toggleFavorite, removeFavorite, pruneInvalid }
 }
