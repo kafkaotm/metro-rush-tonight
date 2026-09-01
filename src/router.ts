@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import linesData from './data/lines.json'
 import stationsOfLineData from './data/stationsOfLine.json'
 import { filterStationsByLine } from './logic/filterStationsByLine'
@@ -11,7 +11,7 @@ const lines = linesData as Line[]
 const stationsOfLine = stationsOfLineData as StationOfLine[]
 
 export const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes: [
     { path: '/', component: LinesPage },
     {
