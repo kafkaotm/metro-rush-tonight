@@ -109,6 +109,24 @@ CSV 欄位為 `西元日期,星期,是否放假,備註`，`是否放假`：`0`=�
 - 資料更新改用 **CI 排程定期抓取**（例如 GitHub Actions cron job，
   頻率可設定每週或每月一次），抓取後自動更新專案內的靜態 JSON 並 commit
 
+### CI workflow 設計備忘（尚未實作）
+
+`scripts/fetch-tdx-data.ts` 本身已經是「全部抓成功才寫檔」——所有
+`writeData()` 呼叫都在迴圈跑完之後才執行，任何一支端點失敗（重試用盡後）
+都會在寫檔前就丟例外、process 以非 0 結束。這代表**只要 workflow 步驟
+順序正確、不要用 `continue-on-error` 或 `|| true` 蓋掉失敗**，抓取失敗
+時 `src/data/*.json` 就完全不會被動到，舊資料自然保留、不會被空資料或
+半套資料覆蓋——這是「CI 抓取失敗時不要覆蓋舊資料」這個需求的解法，不需要
+額外寫防禦邏輯。
+
+大致設計：
+- Trigger：`schedule`（cron，建議每週一次）+ `workflow_dispatch`（手動觸發，方便測試/緊急更新）
+- Steps：checkout → setup pnpm/Node → `pnpm install --frozen-lockfile` →
+  `pnpm run fetch:tdx`（注入 `TDX_CLIENT_ID`/`TDX_CLIENT_SECRET` secrets）→
+  `git diff` 確認 `src/data/` 真的有變動才 commit + push（避免資料沒變
+  也產生空 commit）
+- 推去哪個分支：`develop`（維持 lite Git Flow 慣例，`main` 只透過 PR 更新）
+
 ### TDX 憑證（Client ID / Secret）管理方式
 
 - 憑證存放於 CI 平台的加密 Secrets 機制（如 GitHub Actions 的
@@ -136,6 +154,6 @@ CSV 欄位為 `西元日期,星期,是否放假,備註`，`是否放假`：`0`=�
 
 ## 尚待確定事項
 
-- CI 排程的實際頻率與 workflow 設計細節
+- CI workflow 尚未實作：大致設計見上方「CI workflow 設計備忘」
 - 具體動效設計（路網視覺化、搜尋篩選、倒數提示等）尚在構思階段
 - 轉乘查詢（v2）：範圍與設計細節見上方「未來功能」章節
