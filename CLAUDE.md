@@ -109,6 +109,41 @@ CSV 欄位為 `西元日期,星期,是否放假,備註`，`是否放假`：`0`=�
 - 資料更新改用 **CI 排程定期抓取**（例如 GitHub Actions cron job，
   頻率可設定每週或每月一次），抓取後自動更新專案內的靜態 JSON 並 commit
 
+### CI workflow 設計備忘（尚未實作）
+
+`scripts/fetch-tdx-data.ts` 本身已經是「全部抓成功才寫檔」——所有
+`writeData()` 呼叫都在迴圈跑完之後才執行，任何一支端點失敗（重試用盡後）
+都會在寫檔前就丟例外、process 以非 0 結束。這代表**只要 workflow 步驟
+順序正確、不要用 `continue-on-error` 或 `|| true` 蓋掉失敗**，抓取失敗
+時 `src/data/*.json` 就完全不會被動到，舊資料自然保留、不會被空資料或
+半套資料覆蓋——這是「CI 抓取失敗時不要覆蓋舊資料」這個需求的解法，不需要
+額外寫防禦邏輯。
+
+大致設計：
+- Trigger：`schedule`（cron，建議每週一次）+ `workflow_dispatch`（手動觸發，方便測試/緊急更新）
+- Steps：checkout → setup pnpm/Node → `pnpm install --frozen-lockfile` →
+  `pnpm run fetch:tdx`（注入 `TDX_CLIENT_ID`/`TDX_CLIENT_SECRET` secrets）→
+  `git diff` 確認 `src/data/` 真的有變動才 commit + push（避免資料沒變
+  也產生空 commit）
+- 推去哪個分支：`develop`（維持 lite Git Flow 慣例，`main` 只透過 PR 更新）
+
+### 停駛公告（尚未實作）：TDX 有端點，但跟現有靜態化策略衝突
+
+`/Alert/{RailSystem}` 提供停駛公告需要的欄位：`Title`、`Description`、
+`Status`、`Level`（嚴重程度）、`Effect`、`Reason`、`StartTime`/`EndTime`，
+還有 `AlertScope` 標示影響範圍（哪些站/線/路線段）。
+
+**問題**：這支端點 schema 前綴是 `MRTRealTimeWrapper`——是即時資料，
+跟 `Line`/`StationOfLine`/`FirstLastTimetable` 這種一年變動一兩次的
+資料性質完全不同。如果套用現有「CI 一週抓一次、前端只讀靜態 JSON」的
+策略，使用者會看到過期的公告（甚至是已經解除的停駛狀態還在顯示）——
+比完全不做這個功能更糟，會誤導使用者。
+
+要做的話必須先決定架構：要嘛前端在使用者查詢當下即時打 TDX（等於局部
+放棄「不在使用者查詢當下呼叫 API」的原則），要嘛 CI 用高頻率
+（例如每 5–10 分鐘）單獨抓這支端點、跟其他低頻資料分開處理排程。
+不是加個 UI 就能做，是資料策略層級的決定。
+
 ### TDX 憑證（Client ID / Secret）管理方式
 
 - 憑證存放於 CI 平台的加密 Secrets 機制（如 GitHub Actions 的
@@ -136,6 +171,9 @@ CSV 欄位為 `西元日期,星期,是否放假,備註`，`是否放假`：`0`=�
 
 ## 尚待確定事項
 
-- CI 排程的實際頻率與 workflow 設計細節
+- CI workflow 尚未實作：大致設計見上方「CI workflow 設計備忘」
 - 具體動效設計（路網視覺化、搜尋篩選、倒數提示等）尚在構思階段
 - 轉乘查詢（v2）：範圍與設計細節見上方「未來功能」章節
+- 停駛公告：TDX 有端點但跟靜態化策略衝突，見上方「停駛公告」章節
+- 資料載入中／失敗狀態：目前前端沒有任何即時 API 呼叫，這個狀態不適用；
+  只有在真的接了停駛公告這類即時端點時才會重新需要
