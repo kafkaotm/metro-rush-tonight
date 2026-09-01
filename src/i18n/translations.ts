@@ -15,6 +15,9 @@ interface Translations {
   favDeparted: string
   favHint: string
   fromHome: string
+  savedRoutes: string
+  edit: string
+  done: string
 }
 
 export const translations: Record<Lang, Translations> = {
@@ -33,6 +36,9 @@ export const translations: Record<Lang, Translations> = {
     favDeparted: '已收班',
     favHint: '按 ☆ 把這個方向放到首頁',
     fromHome: '我的路線',
+    savedRoutes: '我的路線',
+    edit: '編輯',
+    done: '完成',
   },
   en: {
     pickLine: 'Which line tonight?',
@@ -49,6 +55,9 @@ export const translations: Record<Lang, Translations> = {
     favDeparted: 'closed',
     favHint: 'Tap ☆ to save this direction to your home screen',
     fromHome: 'SAVED',
+    savedRoutes: 'Saved',
+    edit: 'Edit',
+    done: 'Done',
   },
 }
 
