@@ -21,12 +21,13 @@ const summaries = computed(() => summarizeDirections(props.directions, props.now
 const hasFavoritedDirection = computed(() =>
   props.directions.some((entry) => isFavorited(entry.LineID, entry.StationID, entry.TripHeadSign ?? '')),
 )
+const headerLabel = computed(() => t(props.lang, props.directions.length === 1 ? 'oneDirection' : 'allDirections'))
 </script>
 
 <template>
   <div v-if="summaries.length > 0">
     <div class="mt-[18px] mb-[8px] text-[11.5px] font-extrabold tracking-[.5px] text-[#5d7c8c]">
-      {{ t(lang, 'allDirections') }}
+      {{ headerLabel }}
     </div>
     <div
       v-if="!hasFavoritedDirection"
