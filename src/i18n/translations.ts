@@ -10,6 +10,7 @@ interface Translations {
   allDirections: string
   departed: string
   gapDeparted: string
+  favHint: string
 }
 
 export const translations: Record<Lang, Translations> = {
@@ -23,6 +24,7 @@ export const translations: Record<Lang, Translations> = {
     allDirections: '各方向末班車',
     departed: '末班車已離站',
     gapDeparted: '已過站',
+    favHint: '按 ☆ 把這個方向放到首頁',
   },
   en: {
     pickLine: 'Which line tonight?',
@@ -34,6 +36,7 @@ export const translations: Record<Lang, Translations> = {
     allDirections: 'All directions',
     departed: 'Last train has left',
     gapDeparted: 'departed',
+    favHint: 'Tap ☆ to save this direction to your home screen',
   },
 }
 

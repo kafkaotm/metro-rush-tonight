@@ -1,6 +1,7 @@
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
 import DirectionList from './DirectionList.vue'
+import { useFavorites } from '../composables/useFavorites'
 import type { FirstLastTimetable, ServiceDay } from '../logic/types'
 
 const everyDay: ServiceDay = {
@@ -30,6 +31,11 @@ function makeEntry(overrides: Partial<FirstLastTimetable> = {}): FirstLastTimeta
 }
 
 describe('DirectionList', () => {
+  beforeEach(() => {
+    localStorage.clear()
+    useFavorites().favorites.value = []
+  })
+
   it('renders each direction’s heading and last train time, in order', () => {
     const now = new Date(2026, 7, 31, 23, 0)
     const directions = [
@@ -91,5 +97,50 @@ describe('DirectionList', () => {
     const wrapper = mount(DirectionList, { props: { directions: [], now: new Date(2026, 7, 31, 23, 0), lang: 'zh' } })
 
     expect(wrapper.findAll('[data-testid="direction-row"]')).toHaveLength(0)
+  })
+
+  it('renders a favorite button per row reflecting current favorited state', () => {
+    const now = new Date(2026, 7, 31, 23, 0)
+    const directions = [
+      makeEntry({ TripHeadSign: '往象山' }),
+      makeEntry({ TripHeadSign: '往淡水' }),
+    ]
+    useFavorites().toggleFavorite('R', 'R05', '往淡水')
+
+    const wrapper = mount(DirectionList, { props: { directions, now, lang: 'zh' } })
+
+    const stars = wrapper.findAll('[data-testid="favorite-button"]')
+    expect(stars).toHaveLength(2)
+    expect(stars[0].text()).toBe('☆')
+    expect(stars[1].text()).toBe('★')
+  })
+
+  it('toggles the favorite in useFavorites when a row’s favorite button is clicked', async () => {
+    const now = new Date(2026, 7, 31, 23, 0)
+    const directions = [makeEntry({ TripHeadSign: '往象山' })]
+
+    const wrapper = mount(DirectionList, { props: { directions, now, lang: 'zh' } })
+    await wrapper.get('[data-testid="favorite-button"]').trigger('click')
+
+    expect(useFavorites().isFavorited('R', 'R05', '往象山')).toBe(true)
+  })
+
+  it('shows a hint to favorite a direction when the station has no favorited direction yet', () => {
+    const now = new Date(2026, 7, 31, 23, 0)
+    const directions = [makeEntry({ TripHeadSign: '往象山' })]
+
+    const wrapper = mount(DirectionList, { props: { directions, now, lang: 'zh' } })
+
+    expect(wrapper.text()).toContain('按 ☆ 把這個方向放到首頁')
+  })
+
+  it('hides the hint once at least one direction at the station is favorited', () => {
+    const now = new Date(2026, 7, 31, 23, 0)
+    const directions = [makeEntry({ TripHeadSign: '往象山' })]
+    useFavorites().toggleFavorite('R', 'R05', '往象山')
+
+    const wrapper = mount(DirectionList, { props: { directions, now, lang: 'zh' } })
+
+    expect(wrapper.text()).not.toContain('按 ☆ 把這個方向放到首頁')
   })
 })
