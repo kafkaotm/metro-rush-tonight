@@ -4,6 +4,7 @@ import { defineConfig } from 'vitest/config'
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/metro-rush-tonight/',
   plugins: [vue(), tailwindcss()],
   test: {
     environment: 'jsdom',
